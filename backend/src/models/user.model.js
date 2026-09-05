@@ -7,7 +7,7 @@ const userSchema=new mongoose.Schema({
         trim:true,
         lowercase:true,
         match:[/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,"invalid email address"],
-        unique:[true,"Emai aldready exists."]
+        unique:[true,"Email aldready exists."]
     },
     name:{
         type:String,
@@ -21,7 +21,7 @@ const userSchema=new mongoose.Schema({
         select:false
     }
 },{
-    timestamp:true
+    timestamps:true
 })
 
 userSchema.pre("save",async function(next){

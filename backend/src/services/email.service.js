@@ -1,65 +1,71 @@
-const nodemailer=require("nodemailer")
+const nodemailer = require('nodemailer');
 
-const transporter=nodemailer.createTransport({
-    service:"gmail",
-    auth:{
-        type:"OAuth2",
-        user:process.env.EMAIL_USER,
-        clientId:process.env.GOOGLE_CLIENT_ID,
-        clientSecret:process.env.GOOGLE_CLIENT_SECRET,
-        refreshToken:process.env.GOOGLE_REFRESH_TOKEN
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        type: 'OAuth2',
+        user: process.env.EMAIL_USER,
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+        refreshToken: process.env.REFRESH_TOKEN,
     },
-})
-transporter.verify((error,success)=>{
-    if(error){
-        console.log('Error connceting to Email services:',error)
+});
+
+// Verify the connection configuration
+transporter.verify((error, success) => {
+    if (error) {
+        console.error('Error connecting to email server:', error);
+    } else {
+        console.log('Email server is ready to send messages');
     }
-    else{
-        console.log("Email service is ready")
+});
+
+
+// Function to send email
+const sendEmail = async (to, subject, text, html) => {
+    try {
+        const info = await transporter.sendMail({
+            from: `"Banking System" <${process.env.EMAIL_USER}>`, // sender address
+            to, // list of receivers
+            subject, // Subject line
+            text, // plain text body
+            html, // html body
+        });
+
+        console.log('Message sent: %s', info.messageId);
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    } catch (error) {
+        console.error('Error sending email:', error);
     }
-})
- const sendEmail=async (to, subject,text,html)=>{
-    try{
-        const info= await transporter.sendMail({
-            from: `"Banking_system " <${process.env.EMAIL_USER}>`,
-            to,
-            subject,
-            text,
-            html
-        })
-        console.log("Message sent : %s",info.messageId)
-        console.log("Preview URL: %s",nodemailer.getTestMessageUrl(info))
-        console.log('Email sent successfully')
-    }
-    catch(err){
-        console.log('Error sending email:', err)
-    }
- }
- async function sendRegistrationEmail(userEmail,name) {
-    const subject = "Welcome to Banking system";
-    const text = `
-        Dear ${name},
+};
 
-        Thank you for registering with our banking system.
 
-        Your account has been created successfully.
+async function sendRegistrationEmail(userEmail, name) {
+    const subject = 'Welcome to Banking System!';
+    const text = `Hello ${name},\n\nThank you for registering at Banking System. We're excited to have you on board!\n\nBest regards,\nThe Banking System Team`;
+    const html = `<p>Hello ${name},</p><p>Thank you for registering at Banking System. We're excited to have you on board!</p><p>Best regards,<br>The Banking System Team</p>`;
 
-        You can now login to your account using your email and password.
+    await sendEmail(userEmail, subject, text, html);
+}
 
-        Best regards,
-        Banking System Team
-    `;
-    const html = `
-       <h1>Hello ${name}</h1>
-       <p>Thank you for registering with our banking system.</p>
-       <p>Your account has been created successfully.</p>
-       <p>You can now login to your account using your email and password.</p>
-       <p>Best regards,</p>
-       <p>Banking System Team</p>
-    `;
+async function sendTransactionEmail(userEmail, name, amount, toAccount) {
+    const subject = 'Transaction Successful!';
+    const text = `Hello ${name},\n\nYour transaction of $${amount} to account ${toAccount} was successful.\n\nBest regards,\nThe Banking System Team`;
+    const html = `<p>Hello ${name},</p><p>Your transaction of $${amount} to account ${toAccount} was successful.</p><p>Best regards,<br>The Banking System Team</p>`;
 
-    await sendEmail(userEmail,subject,text,html)
-    console.log('Registration email sent successfully to',userEmail)
- }
+    await sendEmail(userEmail, subject, text, html);
+}
 
- module.exports={sendEmail,sendRegistrationEmail}
+async function sendTransactionFailureEmail(userEmail, name, amount, toAccount) {
+    const subject = 'Transaction Failed';
+    const text = `Hello ${name},\n\nWe regret to inform you that your transaction of $${amount} to account ${toAccount} has failed. Please try again later.\n\nBest regards,\nThe Banking System Team`;
+    const html = `<p>Hello ${name},</p><p>We regret to inform you that your transaction of $${amount} to account ${toAccount} has failed. Please try again later.</p><p>Best regards,<br>The Banking System Team</p>`;
+
+    await sendEmail(userEmail, subject, text, html);
+}
+
+module.exports = {
+    sendRegistrationEmail,
+    sendTransactionEmail,
+    sendTransactionFailureEmail
+};
