@@ -16,6 +16,8 @@ async function userRegisterController(req,res) {
     password
    })
    const token = jwt.sign({userId:user._id},process.env.JWT_SECRET,{expiresIn:"3d"})
+    res.cookie("token", token)
+
     res.status(201).json({
     success: true,
     message: "User registered successfully",
@@ -44,6 +46,8 @@ await emailService.sendRegistrationEmail(user.email,user.name)
         })
     }
     const token = jwt.sign({userId:user._id},process.env.JWT_SECRET,{expiresIn:"3d"})
+     res.cookie("token", token)
+
     return res.status(200).json({
         success: true,
         message: "User logged in successfully",
