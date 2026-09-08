@@ -68,7 +68,21 @@ async function createTransaction(req,res){
             message:"From or To account is not active"
         })
     }
-   
+   // 4. Derive sender balance from ledger
+   const balance=fromUserAccount.getBalance()
+   if(balance<amount){
+    return res.status(400).json({
+        message:"Insufficient balance"
+    })
+   }
+   // 5. Create transaction (PENDING)
+   const transaction=new transactionModel({
+    fromAccount:fromAccount,
+    toAccount:toAccount,
+    amount:amount,
+    idempotencyKey:idempotencyKey,
+    status:"PENDING"
+   })
 }
 
 
