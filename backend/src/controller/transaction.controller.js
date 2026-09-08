@@ -9,9 +9,17 @@ async function transferAmountController(req,res){
             message:"Fields are required"
         })
     }
-
-    
-    
+    const fromUserAccount= await accountModel.findOne({
+        _id:fromAccount
+    })
+    const toUserAccount= await accountModel.findOne({
+        _id:toAccount
+    })    
+    if(!fromUserAccount||!toUserAccount){
+        return res.status(404).json({
+            message:"Invalid fromAccount or toAccount"
+        })
+    }
 }
 
 module.exports={transferAmountController}   
